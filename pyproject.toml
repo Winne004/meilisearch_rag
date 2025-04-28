@@ -1,0 +1,25 @@
+[project]
+name = "meilisearch-rag"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aws>=0.2.5",
+    "boto3>=1.38.3",
+    "fastapi[standard]>=0.115.12",
+    "langchain>=0.3.24",
+    "langchain-aws>=0.2.22",
+    "meilisearch>=0.34.1",
+    "pydantic>=2.11.3",
+    "pydantic-settings>=2.9.1",
+]
+[tool.pyright]
+typeCheckingMode = "strict"
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]
