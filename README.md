@@ -21,6 +21,7 @@ It also allows users to index documents (including the creation of embeddings), 
 * UV installed 
 * Docker/colima or alternative running 
 
+### Quick start setup instructions 
 1. Clone repo 
 2. Ensure docker/colima is running 
 3. Create .env file `touch .env.docker` (`docker compose up` expects .docker extension)
@@ -93,3 +94,4 @@ Please write tests and follow PEP8-style conventions.
 * improve test coverage 
 * abstract langchain embedder implementation away from search_service. 
 * Allow users to dynamically index content of different shapes into different indexes defined at runtime 
+* Add automation/github actions 
