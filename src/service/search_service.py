@@ -11,6 +11,7 @@ from src.domain.dataclasses.dataclasses import (
     VectorisedDocument,
 )
 from src.exceptions.exceptions import (
+    ConversationalSearchError,
     EmbedderError,
 )
 from src.infrastructure.llms.base import LLMABC
@@ -64,24 +65,27 @@ class SearchService:
         return self.vectorstore.hybrid_search(query=request, vector=embedded_query)
 
     def conversational_search(self, request: SearchRequestDataClass) -> dict[str, Any]:
-        keywords = self.llm.extract_keywords(request.query)
+        try:
+            keywords = self.llm.extract_keywords(request.query)
 
-        logger.info("Keywords: %s", keywords)
+            logger.info("Keywords: %s", keywords)
 
-        embedded_query = self.embedder.embed_query(keywords)
+            embedded_query = self.embedder.embed_query(keywords)
 
-        cleaned_query = SearchRequestDataClass(
-            query=keywords,
-            limit=request.limit,
-        )
-        results = self.vectorstore.hybrid_search(
-            query=cleaned_query,
-            vector=embedded_query,
-        )
+            cleaned_query = SearchRequestDataClass(
+                query=keywords,
+                limit=request.limit,
+            )
+            results = self.vectorstore.hybrid_search(
+                query=cleaned_query,
+                vector=embedded_query,
+            )
 
-        summary = self.llm.summarise(request.query, results)
+            summary = self.llm.summarise(request.query, results)
 
-        return {"summary": summary, "sources": results["hits"]}
+            return {"summary": summary, "sources": results["hits"]}
+        except Exception as e:
+            raise ConversationalSearchError from e
 
     def similar_search(self, request: SimilarityRequestDataClass) -> dict[str, Any]:
         return self.vectorstore.similarity_search(

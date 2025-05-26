@@ -8,7 +8,7 @@ from src.conf.settings import get_settings
 
 def get_langchain_base_chat_model(
     llm_name: Literal["Bedrock"],
-) -> type["BaseChatModel"]:
+) -> BaseChatModel:
     settings = get_settings()
     if llm_name == "Bedrock":
         return ChatBedrockConverse(

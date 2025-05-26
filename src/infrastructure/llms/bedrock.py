@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, override
 
 from langchain_aws import BedrockEmbeddings
 from langchain_core.exceptions import LangChainException
@@ -12,7 +12,7 @@ from src.infrastructure.llms.base import LLMABC
 
 
 class LangchainLLM(LLMABC):
-    def __init__(self, chat_model: type["BaseChatModel"]) -> None:
+    def __init__(self, chat_model: BaseChatModel) -> None:
         self.llm = chat_model
         self.keyword_prompt = ChatPromptTemplate.from_messages(  # type: ignore
             [
@@ -50,6 +50,7 @@ class LangchainLLM(LLMABC):
             ],
         )
 
+    @override
     def extract_keywords(self, query: str) -> str:
         try:
             chain = self.keyword_prompt | self.llm | StrOutputParser()  # type: ignore
@@ -57,6 +58,7 @@ class LangchainLLM(LLMABC):
         except LangChainException as e:
             raise KeywordExtractionError("Keyword extraction failed") from e
 
+    @override
     def summarise(
         self,
         query: str,
