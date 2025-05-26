@@ -93,6 +93,14 @@ class IndexingError(VectorDatabaseError):
     message = "Indexing Failed."
 
 
+class ConversationalSearchError(ServiceError):
+    """Raised when a conversational search operation fails."""
+
+    status_code = 500
+    code = "conversational_search_failed"
+    message = "Conversational search failed."
+
+
 class EmbedderError(ServiceError):
     """Raised when a LLM operation fails."""
 
