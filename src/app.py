@@ -4,8 +4,12 @@ from fastapi import BackgroundTasks, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from src.dependencies.index_dependencies import get_search_service
-from src.domain.dataclasses.dataclasses import Document, SearchRequestDataClass
-from src.domain.schemas.requests import IndexRequest, SearchRequest
+from src.domain.dataclasses.dataclasses import (
+    Document,
+    SearchRequestDataClass,
+    SimilarityRequestDataClass,
+)
+from src.domain.schemas.requests import IndexRequest, SearchRequest, SimilarityRequest
 from src.exceptions.exceptions import AppError
 from src.infrastructure.logger import setup_logger
 from src.service.search_service import SearchService
@@ -59,3 +63,12 @@ def generative_search(
 ) -> dict[str, Any]:
     request_data = SearchRequestDataClass(**request.model_dump())
     return search_service.conversational_search(request=request_data)
+
+
+@app.post("search/similar")
+def similar_search(
+    request: SimilarityRequest,
+    search_service: Annotated[SearchService, Depends(get_search_service)],
+) -> dict[str, Any]:
+    request_data = SimilarityRequestDataClass(**request.model_dump())
+    return search_service.similar_search(request=request_data)

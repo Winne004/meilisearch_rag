@@ -9,9 +9,10 @@ from meilisearch.index import Index
 from src.conf.settings import get_settings
 from src.domain.dataclasses.dataclasses import (
     SearchRequestDataClass,
+    SimilarityRequestDataClass,
     VectorisedDocument,
 )
-from src.exceptions.exceptions import VectorDatabaseError
+from src.exceptions.exceptions import SimilarSearchError, VectorDatabaseError
 from src.infrastructure.vectorstores.base import VectorStoreABC
 
 
@@ -76,6 +77,22 @@ class MeiliVectorStore(VectorStoreABC):
         except MeilisearchError as e:
             message = "error executing hybrid search"
             raise VectorDatabaseError(message=message) from e
+
+    def similarity_search(
+        self,
+        request: SimilarityRequestDataClass,
+    ) -> dict[str, Any]:
+        try:
+            return self.index.get_similar_documents(
+                parameters={
+                    "id": request.id,
+                    "embedder": self.embedder_name,
+                    "limit": request.limit,
+                },
+            )
+        except MeilisearchError as e:
+            message = "error executing similarity search"
+            raise SimilarSearchError(message=message) from e
 
 
 @lru_cache
