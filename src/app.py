@@ -65,7 +65,7 @@ def generative_search(
     return search_service.conversational_search(request=request_data)
 
 
-@app.post("search/similar")
+@app.post("/search/similar")
 def similar_search(
     request: SimilarityRequest,
     search_service: Annotated[SearchService, Depends(get_search_service)],
