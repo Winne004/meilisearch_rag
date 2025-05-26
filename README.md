@@ -60,7 +60,7 @@ curl -X 'POST' \
   "sources": [
     {
       "id": "342__0",
-      "chuck": "mourinho plots \\ remaining output truncated... 
+      "chuck": "mourinho plots \\ remaining output truncated... " 
 ```
 
 ### Setting up env 
