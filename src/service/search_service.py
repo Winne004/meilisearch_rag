@@ -15,6 +15,8 @@ from src.domain.dataclasses.dataclasses import (
 from src.exceptions.exceptions import (
     ConversationalSearchError,
     EmbedderError,
+    IndexingError,
+    SemanticSearchError,
     VectorDatabaseError,
 )
 from src.infrastructure.logger import setup_logger
@@ -105,7 +107,7 @@ class SearchService:
                 "Index failed due to a vector database error. "
                 "Please check vector indexing and MeiliSearch configuration."
             )
-            raise ConversationalSearchError(message=error_message) from e
+            raise IndexingError(message=error_message) from e
 
     def semantic_search(self, request: SearchRequestDataClass) -> dict[str, Any]:
         try:
@@ -114,17 +116,17 @@ class SearchService:
 
         except LangChainException as e:
             error_message = (
-                "Failed to perform conversational search. "
+                "Failed to perform semantic search. "
                 "Check if the LLM is configured correctly."
             )
-            raise ConversationalSearchError(message=error_message) from e
+            raise SemanticSearchError(message=error_message) from e
 
         except VectorDatabaseError as e:
             error_message = (
                 "Semantic search failed due to a vector database error. "
-                "Please check vector indexing and MeiliSearch configuration."
+                "Please check vector db configuration."
             )
-            raise ConversationalSearchError(message=error_message) from e
+            raise SemanticSearchError(message=error_message) from e
 
     def conversational_search(self, request: SearchRequestDataClass) -> dict[str, Any]:
         try:

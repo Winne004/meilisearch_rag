@@ -25,14 +25,6 @@ class AppError(Exception):
         return f"{self.__class__.__name__}(code={self.code!r}, status_code={self.status_code}, message={self.message!r})"
 
 
-class DomainError(AppError):
-    """An error raised due to a domain rule violation."""
-
-
-class InvalidArticleState(DomainError):
-    """An error raised when an article is in an invalid state for an operation."""
-
-
 class ServiceError(AppError):
     """An error raised when a service operation fails."""
 
@@ -57,6 +49,14 @@ class ConversationalSearchError(ServiceError):
     message = "Semantic search failed."
 
 
+class IndexingError(ServiceError):
+    """Raised when a index operation fails."""
+
+    status_code = 500
+    code = "indexing_failed"
+    message = "Indexing Failed."
+
+
 class InfrastructureError(AppError):
     """Raised when an infrastructure service (DB, S3, etc.) fails."""
 
@@ -69,7 +69,7 @@ class VectorDatabaseError(InfrastructureError):
     message = "Vector DB failed."
 
 
-class EmbedderError(InfrastructureError):
+class EmbedderError(ServiceError):
     """Raised when a LLM operation fails."""
 
     status_code = 500
