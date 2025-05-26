@@ -10,3 +10,8 @@ class IndexRequest(BaseModel):
 class SearchRequest(BaseModel):
     query: str
     limit: int = Field(default=5, gt=0, lt=20)
+
+
+class SimilarityRequest(BaseModel):
+    id: str | int
+    limit: int = Field(default=5, gt=0, lt=20)
