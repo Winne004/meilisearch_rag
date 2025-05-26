@@ -63,6 +63,15 @@ def test_conversational_search(service: SearchService):
     assert result["summary"] == "summary of documents"
 
 
+def test_similarity_search(service: SearchService):
+    from src.domain.dataclasses.dataclasses import SimilarityRequestDataClass
+
+    request = SimilarityRequestDataClass(id="1", limit=1)
+    result = service.similar_search(request)
+
+    assert result == fake_results
+
+
 def test_index_documents_fails_with_embedder_error():
     service = SearchService(FailingEmbedder(), FailingVectorStore(), FailingLLM())
     doc = Document(id="1", body="Fail", url="http://fail.com")

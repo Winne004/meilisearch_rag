@@ -25,6 +25,7 @@ from src.domain.dataclasses.dataclasses import (
     SimilarityRequestDataClass,
     VectorisedDocument,
 )
+from src.exceptions.exceptions import SimilarSearchError
 from src.infrastructure.vectorstores.base import VectorStoreABC
 
 fake_results = {
@@ -115,6 +116,12 @@ class FailingVectorStore(VectorStoreABC):
         vector: list[float],
     ) -> NoReturn:
         raise Exception("hybrid_search failed")
+
+    def similarity_search(
+        self,
+        request: SimilarityRequestDataClass,
+    ) -> NoReturn:
+        raise SimilarSearchError("similarity_search failed")
 
 
 class FailingLLM(BaseChatModel):

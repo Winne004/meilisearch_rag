@@ -75,3 +75,11 @@ class EmbedderError(ServiceError):
     status_code = 500
     code = "LMM_failed"
     message = "Vector DB failed."
+
+
+class SimilarSearchError(ServiceError):
+    """Raised when a similar search operation fails."""
+
+    status_code = 500
+    code = "similar_search_failed"
+    message = "Similar search failed."
