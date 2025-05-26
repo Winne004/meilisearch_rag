@@ -45,6 +45,30 @@ class VectorDatabaseError(InfrastructureError):
     message = "Vector DB failed."
 
 
+class LLMError(InfrastructureError):
+    """Raised when a DB operation fails."""
+
+    status_code = 500
+    code = "vectorDB_failed"
+    message = "Vector DB failed."
+
+
+class KeywordExtractionError(LLMError):
+    """Raised when a DB operation fails."""
+
+    status_code = 500
+    code = "vectorDB_failed"
+    message = "Vector DB failed."
+
+
+class SummarisationError(LLMError):
+    """Raised when a DB operation fails."""
+
+    status_code = 500
+    code = "vectorDB_failed"
+    message = "Vector DB failed."
+
+
 class SemanticSearchError(VectorDatabaseError):
     """Raised when a semantic search operation fails."""
 
@@ -67,6 +91,14 @@ class IndexingError(VectorDatabaseError):
     status_code = 500
     code = "indexing_failed"
     message = "Indexing Failed."
+
+
+class ConversationalSearchError(ServiceError):
+    """Raised when a conversational search operation fails."""
+
+    status_code = 500
+    code = "conversational_search_failed"
+    message = "Conversational search failed."
 
 
 class EmbedderError(ServiceError):

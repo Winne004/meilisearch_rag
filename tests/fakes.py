@@ -5,27 +5,25 @@ from typing import (
     override,
 )
 
-from langchain_core.callbacks import (
-    CallbackManagerForLLMRun,
-)
 from langchain_core.embeddings import Embeddings
 from langchain_core.exceptions import LangChainException
-from langchain_core.language_models.base import LanguageModelInput
-from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.language_models.fake_chat_models import FakeMessagesListChatModel
 from langchain_core.messages import (
-    BaseMessage,
+    AIMessage,
 )
-from langchain_core.outputs import (
-    ChatResult,
-)
-from langchain_core.runnables import RunnableConfig
 
 from src.domain.dataclasses.dataclasses import (
     SearchRequestDataClass,
     SimilarityRequestDataClass,
     VectorisedDocument,
 )
-from src.exceptions.exceptions import SemanticSearchError, SimilarSearchError
+from src.exceptions.exceptions import (
+    KeywordExtractionError,
+    SemanticSearchError,
+    SimilarSearchError,
+    SummarisationError,
+)
+from src.infrastructure.llms.bedrock import LangchainLLM
 from src.infrastructure.vectorstores.base import VectorStoreABC
 
 fake_results = {
@@ -124,35 +122,25 @@ class FailingVectorStore(VectorStoreABC):
         raise SimilarSearchError("similarity_search failed")
 
 
-class FailingLLM(BaseChatModel):
-    @override
-    def invoke(
-        self,
-        input: LanguageModelInput,
-        config: RunnableConfig | None = None,
-        *,
-        stop: list[str] | None = None,
-        **kwargs: Any,
-    ) -> BaseMessage:
-        raise LangChainException("LLM invoke failed")
+class FakeFailingLangchainLLM(LangchainLLM):
+    def __init__(self) -> None:
+        first_msg = AIMessage(content="test")
+        second_msg = AIMessage(content="summary of documents")
+        super().__init__(
+            chat_model=FakeMessagesListChatModel(responses=[first_msg, second_msg]),
+        )  # type: ignore
 
     @override
-    def _generate(
-        self,
-        messages: list[BaseMessage],
-        stop: list[str] | None = None,
-        run_manager: CallbackManagerForLLMRun | None = None,
-        **kwargs: Any,
-    ) -> ChatResult:
-        ChatResult(
-            generations=[],
-            llm_output={},
-        )
-        raise LangChainException("LLM generate failed")
+    def extract_keywords(self, query: str) -> str:
+        raise KeywordExtractionError("Keyword extraction failed")
 
-    @property
-    def _llm_type(self) -> str:
-        return "failing_llm"
+    @override
+    def summarise(
+        self,
+        query: str,
+        results: dict[str, Any],
+    ) -> str:
+        raise SummarisationError("Keyword extraction failed")
 
 
 class FakeMeiliIndex:
@@ -180,3 +168,24 @@ class FakeMeiliIndex:
         opt_params: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         return fake_results
+
+
+class FakeLangchainLLM(LangchainLLM):
+    def __init__(self) -> None:
+        first_msg = AIMessage(content="test")
+        second_msg = AIMessage(content="summary of documents")
+        super().__init__(
+            chat_model=FakeMessagesListChatModel(responses=[first_msg, second_msg]),
+        )  # type: ignore
+
+    @override
+    def extract_keywords(self, query: str) -> str:
+        return "keyword1, keyword2, keyword3"
+
+    @override
+    def summarise(
+        self,
+        query: str,
+        results: dict[str, Any],
+    ) -> str:
+        return "This is a summary of the search results."

@@ -2,9 +2,6 @@ from typing import Any
 
 from langchain_core.embeddings import Embeddings
 from langchain_core.exceptions import LangChainException
-from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
 
 from src.domain.chunk import chunk_paragraphs
 from src.domain.dataclasses.dataclasses import (
@@ -16,8 +13,8 @@ from src.domain.dataclasses.dataclasses import (
 from src.exceptions.exceptions import (
     ConversationalSearchError,
     EmbedderError,
-    SemanticSearchError,
 )
+from src.infrastructure.llms.base import LLMABC
 from src.infrastructure.logger import setup_logger
 from src.infrastructure.vectorstores.base import VectorStoreABC
 
@@ -29,49 +26,11 @@ class SearchService:
         self,
         embedder: Embeddings,
         vectorstore: VectorStoreABC,
-        llm: BaseChatModel,
+        llm: LLMABC,
     ) -> None:
         self.embedder = embedder
         self.vectorstore = vectorstore
         self.llm = llm
-        # --- Prompt for keyword extraction ---
-        self.keyword_prompt = ChatPromptTemplate.from_messages(  # type: ignore
-            [
-                (
-                    "system",
-                    """
-                "You are an assistant that extracts keywords from user queries.\n"
-                "Your task is to identify named entities and core topics from the query "
-                "and return them as a simple, comma-separated string (without punctuation).\n\n"
-                "**Example:**\n"
-                "Input: 'Tell me about the royal family's trip to Scotland.'\n"
-                "Output: king, queen, royal family, Scotland"
-                    """,
-                ),
-                ("human", "Search query: {query}"),
-            ],
-        )
-
-        # --- Prompt for summarization ---
-        self.summarise_prompt = ChatPromptTemplate.from_messages(  # type: ignore
-            [
-                (
-                    "system",
-                    """
-                You are a summarisation assistant.
-                Your task is to summarise search results based on the original query.
-                You must not use any external knowledge or data.
-                You summarise information from news articles in the manner of a journalist. 
-                You must only use the context passed to you in the prompt. 
-
-                If you can't answer - You should say so. 
-                You must not use your training data. 
-            """,
-                ),
-                ("human", "query: {original_query}"),
-                ("human", "Search results: {results}"),
-            ],
-        )
 
     def index_documents(self, documents: list[Document]) -> None:
         """Index a document: create embeddings + store them."""
@@ -102,21 +61,12 @@ class SearchService:
             raise EmbedderError(message=error_message) from e
 
     def semantic_search(self, request: SearchRequestDataClass) -> dict[str, Any]:
-        try:
-            embedded_query = self.embedder.embed_query(request.query)
-            return self.vectorstore.hybrid_search(query=request, vector=embedded_query)
-
-        except LangChainException as e:
-            error_message = (
-                "Failed to perform semantic search. "
-                "Check if the LLM is configured correctly."
-            )
-            raise SemanticSearchError(message=error_message) from e
+        embedded_query = self.embedder.embed_query(request.query)
+        return self.vectorstore.hybrid_search(query=request, vector=embedded_query)
 
     def conversational_search(self, request: SearchRequestDataClass) -> dict[str, Any]:
         try:
-            keyword_chain = self.keyword_prompt | self.llm | StrOutputParser()  # type: ignore
-            keywords = keyword_chain.invoke({"query": request.query})  # type: ignore
+            keywords = self.llm.extract_keywords(request.query)
 
             logger.info("Keywords: %s", keywords)
 
@@ -131,21 +81,11 @@ class SearchService:
                 vector=embedded_query,
             )
 
-            summarise_chain = self.summarise_prompt | self.llm | StrOutputParser()  # type: ignore
-            summary = summarise_chain.invoke(  # type: ignore
-                {
-                    "original_query": request.query,
-                    "results": results["hits"],
-                },
-            )
+            summary = self.llm.summarise(request.query, results)
 
             return {"summary": summary, "sources": results["hits"]}
-        except LangChainException as e:
-            error_message = (
-                "Failed to perform conversational search. "
-                "Check if the LLM is configured correctly."
-            )
-            raise ConversationalSearchError(message=error_message) from e
+        except Exception as e:
+            raise ConversationalSearchError from e
 
     def similar_search(self, request: SimilarityRequestDataClass) -> dict[str, Any]:
         return self.vectorstore.similarity_search(

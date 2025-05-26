@@ -8,12 +8,14 @@ from src.exceptions.exceptions import (
     EmbedderError,
     SemanticSearchError,
 )
+from src.infrastructure.llms.bedrock import LangchainLLM
 from src.service.search_service import SearchService
 from tests.fakes import (
     FailingEmbedder,
-    FailingLLM,
     FailingVectorStore,
     FakeEmbedder,
+    FakeFailingLangchainLLM,
+    FakeLangchainLLM,
     FakeVectorStore,
     fake_results,
 )
@@ -26,16 +28,34 @@ def service() -> SearchService:
     return SearchService(
         embedder=FakeEmbedder(),
         vectorstore=FakeVectorStore(),
-        llm=FakeMessagesListChatModel(responses=[first_msg, second_msg]),
+        llm=LangchainLLM(FakeMessagesListChatModel(responses=[first_msg, second_msg])),
     )
 
 
 @pytest.fixture
-def failing_service() -> SearchService:
+def failing_embedder_service() -> SearchService:
     return SearchService(
         embedder=FailingEmbedder(),
         vectorstore=FailingVectorStore(),
-        llm=FailingLLM(),
+        llm=FakeLangchainLLM(),
+    )
+
+
+@pytest.fixture
+def failing_llm_service() -> SearchService:
+    return SearchService(
+        embedder=FakeEmbedder(),
+        vectorstore=FakeVectorStore(),
+        llm=FakeFailingLangchainLLM(),
+    )
+
+
+@pytest.fixture
+def failing_vector_db_service() -> SearchService:
+    return SearchService(
+        embedder=FakeEmbedder(),
+        vectorstore=FailingVectorStore(),
+        llm=FakeLangchainLLM(),
     )
 
 
@@ -73,30 +93,22 @@ def test_similarity_search(service: SearchService):
 
 
 def test_index_documents_fails_with_embedder_error():
-    service = SearchService(FailingEmbedder(), FailingVectorStore(), FailingLLM())
+    service = SearchService(FailingEmbedder(), FailingVectorStore(), FakeLangchainLLM())
     doc = Document(id="1", body="Fail", url="http://fail.com")
 
     with pytest.raises(EmbedderError):
         service.index_documents([doc])
 
 
-def test_semantic_search_fails_with_error():
-    service = SearchService(
-        FakeEmbedder(),
-        FailingVectorStore(),
-        FakeMessagesListChatModel(responses=[AIMessage(content="this will fail")]),
-    )
+def test_semantic_search_fails_with_error(failing_vector_db_service: SearchService):
     request = SearchRequestDataClass(query="bad query", limit=1)
 
     with pytest.raises(SemanticSearchError):
-        service.semantic_search(request)
+        failing_vector_db_service.semantic_search(request)
 
 
-def test_conversational_search_fails_with_llm_error():
-    from tests.fakes import FakeEmbedder, FakeVectorStore
-
-    service = SearchService(FakeEmbedder(), FakeVectorStore(), FailingLLM())
+def test_conversational_search_fails_with_llm_error(failing_llm_service: SearchService):
     request = SearchRequestDataClass(query="What's up?", limit=1)
 
     with pytest.raises(ConversationalSearchError):
-        service.conversational_search(request)
+        failing_llm_service.conversational_search(request)
