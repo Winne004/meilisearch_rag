@@ -34,21 +34,21 @@ def client(mock_search_service: MagicMock) -> Generator[TestClient, Any]:
 def test_index_documents(client: TestClient) -> None:
     payload = [
         IndexRequest(
-            title="test",
+            id="1",
             url="www.test.com",
             body="body",
         ).model_dump(),
     ]
 
     response = client.post("/index/document", json=payload)
-    assert response.status_code == 201
+    assert response.status_code == 202
     assert response.json() == {"status": "success"}
 
 
 def test_index_multiple_documents(client: TestClient) -> None:
     payload = [
         IndexRequest(
-            title=f"title {i}",
+            id="1",
             url=f"https://example.com/{i}",
             body="text",
         ).model_dump()
@@ -56,7 +56,7 @@ def test_index_multiple_documents(client: TestClient) -> None:
     ]
 
     response = client.post("/index/document", json=payload)
-    assert response.status_code == 201
+    assert response.status_code == 202
     assert response.json() == {"status": "success"}
 
 

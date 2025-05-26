@@ -3,7 +3,11 @@ from langchain_core.language_models.fake_chat_models import FakeMessagesListChat
 from langchain_core.messages import AIMessage
 
 from src.domain.dataclasses.dataclasses import Document, SearchRequestDataClass
-from src.exceptions.exceptions import ConversationalSearchError, EmbedderError
+from src.exceptions.exceptions import (
+    ConversationalSearchError,
+    EmbedderError,
+    SemanticSearchError,
+)
 from src.service.search_service import SearchService
 from tests.fakes import (
     FailingEmbedder,
@@ -36,7 +40,7 @@ def failing_service() -> SearchService:
 
 
 def test_index_documents(service: SearchService) -> None:
-    doc = Document(title="Test", body="Some body", url="http://example.com")
+    doc = Document(id="1", body="Some body", url="http://example.com")
     service.index_documents([doc])
 
     vectorstore: FakeVectorStore = service.vectorstore  # type: ignore
@@ -61,17 +65,17 @@ def test_conversational_search(service: SearchService):
 
 def test_index_documents_fails_with_embedder_error():
     service = SearchService(FailingEmbedder(), FailingVectorStore(), FailingLLM())
-    doc = Document(title="Bad", body="Fail", url="http://fail.com")
+    doc = Document(id="1", body="Fail", url="http://fail.com")
 
     with pytest.raises(EmbedderError):
         service.index_documents([doc])
 
 
-def test_semantic_search_fails_with_embedder_error():
+def test_semantic_search_fails_with_error():
     service = SearchService(FailingEmbedder(), FailingVectorStore(), FailingLLM())
     request = SearchRequestDataClass(query="bad query", limit=1)
 
-    with pytest.raises(EmbedderError):
+    with pytest.raises(SemanticSearchError):
         service.semantic_search(request)
 
 
