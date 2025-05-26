@@ -62,7 +62,7 @@ def test_index_multiple_documents(client: TestClient) -> None:
 
 def test_semantic_search_limit_zero(client: TestClient) -> None:
     payload = {"query": "test", "limit": 0}
-    response = client.post("/semantic-search", json=payload)
+    response = client.post("search/semantic", json=payload)
     assert response.status_code == 422
 
 
@@ -75,7 +75,7 @@ def test_request_validation_fail(client: TestClient) -> None:
 def test_semantic_search(client: TestClient) -> None:
     payload = SearchRequest(query="test", limit=5).model_dump()
 
-    response = client.post("/semantic-search", json=payload)
+    response = client.post("search/semantic", json=payload)
     assert response.status_code == 200
     assert response.json() == {"results": ["semantic"]}
 
@@ -83,7 +83,7 @@ def test_semantic_search(client: TestClient) -> None:
 def test_generative_search(client: TestClient) -> None:
     payload = {"query": "latest AI news", "filters": {}, "top_k": 3}
 
-    response = client.post("/generative-search", json=payload)
+    response = client.post("search/conversational", json=payload)
     assert response.status_code == 200
     assert response.json() == {"results": ["generative"]}
 
@@ -95,7 +95,7 @@ def test_error_handling(client: TestClient, mock_search_service: MagicMock) -> N
 
     payload = {"query": "", "filters": {}, "top_k": 3}
 
-    response = client.post("/semantic-search", json=payload)
+    response = client.post("search/semantic", json=payload)
     assert response.status_code == 500
     assert response.json() == {
         "error": {"code": "internal_error", "message": "Invalid query"},

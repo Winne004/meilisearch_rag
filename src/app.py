@@ -43,7 +43,7 @@ def index(
     return {"status": "success"}
 
 
-@app.post("/semantic-search")
+@app.post("/search/semantic")
 def semantic_search(
     request: SearchRequest,
     search_service: Annotated[SearchService, Depends(get_search_service)],
@@ -52,7 +52,7 @@ def semantic_search(
     return search_service.semantic_search(request=request_data)
 
 
-@app.post("/generative-search")
+@app.post("/search/conversational")
 def generative_search(
     request: SearchRequest,
     search_service: Annotated[SearchService, Depends(get_search_service)],
