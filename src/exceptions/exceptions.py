@@ -33,30 +33,6 @@ class ServiceError(AppError):
     message = "Service operation failed."
 
 
-class SemanticSearchError(ServiceError):
-    """Raised when a semantic search operation fails."""
-
-    status_code = 500
-    code = "semantic_search_failed"
-    message = "Semantic search failed."
-
-
-class ConversationalSearchError(ServiceError):
-    """Raised when a semantic search operation fails."""
-
-    status_code = 500
-    code = "semantic_search_failed"
-    message = "Semantic search failed."
-
-
-class IndexingError(ServiceError):
-    """Raised when a index operation fails."""
-
-    status_code = 500
-    code = "indexing_failed"
-    message = "Indexing Failed."
-
-
 class InfrastructureError(AppError):
     """Raised when an infrastructure service (DB, S3, etc.) fails."""
 
@@ -69,15 +45,39 @@ class VectorDatabaseError(InfrastructureError):
     message = "Vector DB failed."
 
 
+class SemanticSearchError(VectorDatabaseError):
+    """Raised when a semantic search operation fails."""
+
+    status_code = 500
+    code = "semantic_search_failed"
+    message = "Semantic search failed."
+
+
+class ConversationalSearchError(VectorDatabaseError):
+    """Raised when a semantic search operation fails."""
+
+    status_code = 500
+    code = "semantic_search_failed"
+    message = "Semantic search failed."
+
+
+class IndexingError(VectorDatabaseError):
+    """Raised when a index operation fails."""
+
+    status_code = 500
+    code = "indexing_failed"
+    message = "Indexing Failed."
+
+
 class EmbedderError(ServiceError):
     """Raised when a LLM operation fails."""
 
     status_code = 500
     code = "LMM_failed"
-    message = "Vector DB failed."
+    message = "Failed to generate embedding."
 
 
-class SimilarSearchError(ServiceError):
+class SimilarSearchError(VectorDatabaseError):
     """Raised when a similar search operation fails."""
 
     status_code = 500
