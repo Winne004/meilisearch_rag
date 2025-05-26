@@ -11,7 +11,7 @@ A simple, extensible conversational search system built with **retrieval-augment
 ### Features 
 - ✅ **Modular Architecture** - Meilisearch and LangChain can easily be swapped out for other providers. 
 - ✅ **Conversational Search** - Combines the power of hyrbrid search and summarization for human-friendly responses
-- 📦 **Document indexing** — Index raw documents, chunk and embed them, and search via similarity or hybrid queries
+- ✅ **Document indexing** — Index raw documents, chunk and embed them, and search via similarity or hybrid queries
 
 It also allows users to index documents (including the creation of embeddings), and perform similarity and semantic searches. 
 
