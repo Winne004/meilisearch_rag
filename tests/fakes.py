@@ -22,6 +22,7 @@ from langchain_core.runnables import RunnableConfig
 
 from src.domain.dataclasses.dataclasses import (
     SearchRequestDataClass,
+    SimilarityRequestDataClass,
     VectorisedDocument,
 )
 from src.infrastructure.vectorstores.base import VectorStoreABC
@@ -87,6 +88,12 @@ class FakeVectorStore(VectorStoreABC):
     ) -> dict[str, Any]:
         self.last_query = query
         self.last_vector = vector
+        return fake_results
+
+    def similarity_search(
+        self,
+        request: SimilarityRequestDataClass,
+    ) -> dict[str, Any]:
         return fake_results
 
 
