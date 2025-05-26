@@ -22,8 +22,10 @@ from langchain_core.runnables import RunnableConfig
 
 from src.domain.dataclasses.dataclasses import (
     SearchRequestDataClass,
+    SimilarityRequestDataClass,
     VectorisedDocument,
 )
+from src.exceptions.exceptions import SimilarSearchError
 from src.infrastructure.vectorstores.base import VectorStoreABC
 
 fake_results = {
@@ -89,6 +91,12 @@ class FakeVectorStore(VectorStoreABC):
         self.last_vector = vector
         return fake_results
 
+    def similarity_search(
+        self,
+        request: SimilarityRequestDataClass,
+    ) -> dict[str, Any]:
+        return fake_results
+
 
 class FailingEmbedder(Embeddings):
     def embed_documents(self, texts: list[str]) -> NoReturn:  # noqa: ARG002
@@ -108,6 +116,12 @@ class FailingVectorStore(VectorStoreABC):
         vector: list[float],
     ) -> NoReturn:
         raise Exception("hybrid_search failed")
+
+    def similarity_search(
+        self,
+        request: SimilarityRequestDataClass,
+    ) -> NoReturn:
+        raise SimilarSearchError("similarity_search failed")
 
 
 class FailingLLM(BaseChatModel):

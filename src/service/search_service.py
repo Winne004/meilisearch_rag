@@ -10,6 +10,7 @@ from src.domain.chunk import chunk_paragraphs
 from src.domain.dataclasses.dataclasses import (
     Document,
     SearchRequestDataClass,
+    SimilarityRequestDataClass,
     VectorisedDocument,
 )
 from src.exceptions.exceptions import (
@@ -17,6 +18,7 @@ from src.exceptions.exceptions import (
     EmbedderError,
     IndexingError,
     SemanticSearchError,
+    SimilarSearchError,
     VectorDatabaseError,
 )
 from src.infrastructure.logger import setup_logger
@@ -168,3 +170,16 @@ class SearchService:
                 "Please check vector indexing and MeiliSearch configuration."
             )
             raise ConversationalSearchError(message=error_message) from e
+
+    def similar_search(self, request: SimilarityRequestDataClass) -> dict[str, Any]:
+        try:
+            return self.vectorstore.similarity_search(
+                request,
+            )
+
+        except VectorDatabaseError as e:
+            error_message = (
+                "Similarity search failed due to a vector database error. "
+                "Please check vector indexing and MeiliSearch configuration."
+            )
+            raise SimilarSearchError(message=error_message) from e

@@ -20,3 +20,9 @@ class VectorisedDocument:
 class SearchRequestDataClass:
     query: str
     limit: int
+
+
+@dataclass
+class SimilarityRequestDataClass:
+    id: str | int
+    limit: int
