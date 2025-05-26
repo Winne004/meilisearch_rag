@@ -3,6 +3,7 @@ from typing import Any
 
 from src.domain.dataclasses.dataclasses import (
     SearchRequestDataClass,
+    SimilarityRequestDataClass,
     VectorisedDocument,
 )
 
@@ -26,5 +27,15 @@ class VectorStoreABC(ABC):
     ) -> dict[str, Any]:
         """Perform a semantic search against the vectorstore.
 
-        Returns an object containing revelvant objects .
+        Returns an object containing relevant objects .
+        """
+
+    @abstractmethod
+    def similarity_search(
+        self,
+        request: SimilarityRequestDataClass,
+    ) -> dict[str, Any]:
+        """Perform a similarity search against the vectorstore.
+
+        Returns an object containing relevant objects.
         """
