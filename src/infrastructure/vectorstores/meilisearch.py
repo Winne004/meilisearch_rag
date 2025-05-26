@@ -12,7 +12,11 @@ from src.domain.dataclasses.dataclasses import (
     SimilarityRequestDataClass,
     VectorisedDocument,
 )
-from src.exceptions.exceptions import SimilarSearchError, VectorDatabaseError
+from src.exceptions.exceptions import (
+    IndexingError,
+    SemanticSearchError,
+    SimilarSearchError,
+)
 from src.infrastructure.vectorstores.base import VectorStoreABC
 
 
@@ -46,7 +50,7 @@ class MeiliVectorStore(VectorStoreABC):
             self.index.add_documents(documents_as_dict)
         except MeilisearchError as e:
             message = "error adding documents to vector store"
-            raise VectorDatabaseError(message=message) from e
+            raise IndexingError(message=message) from e
 
     def _convert_documents_to_dict(
         self,
@@ -76,7 +80,7 @@ class MeiliVectorStore(VectorStoreABC):
             return self.index.search(query=query.query, opt_params=params)
         except MeilisearchError as e:
             message = "error executing hybrid search"
-            raise VectorDatabaseError(message=message) from e
+            raise SemanticSearchError(message=message) from e
 
     def similarity_search(
         self,

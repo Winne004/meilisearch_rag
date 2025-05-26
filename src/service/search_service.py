@@ -16,10 +16,7 @@ from src.domain.dataclasses.dataclasses import (
 from src.exceptions.exceptions import (
     ConversationalSearchError,
     EmbedderError,
-    IndexingError,
     SemanticSearchError,
-    SimilarSearchError,
-    VectorDatabaseError,
 )
 from src.infrastructure.logger import setup_logger
 from src.infrastructure.vectorstores.base import VectorStoreABC
@@ -104,13 +101,6 @@ class SearchService:
             )
             raise EmbedderError(message=error_message) from e
 
-        except VectorDatabaseError as e:
-            error_message = (
-                "Index failed due to a vector database error. "
-                "Please check vector indexing and MeiliSearch configuration."
-            )
-            raise IndexingError(message=error_message) from e
-
     def semantic_search(self, request: SearchRequestDataClass) -> dict[str, Any]:
         try:
             embedded_query = self.embedder.embed_query(request.query)
@@ -120,13 +110,6 @@ class SearchService:
             error_message = (
                 "Failed to perform semantic search. "
                 "Check if the LLM is configured correctly."
-            )
-            raise SemanticSearchError(message=error_message) from e
-
-        except VectorDatabaseError as e:
-            error_message = (
-                "Semantic search failed due to a vector database error. "
-                "Please check vector db configuration."
             )
             raise SemanticSearchError(message=error_message) from e
 
@@ -164,22 +147,7 @@ class SearchService:
             )
             raise ConversationalSearchError(message=error_message) from e
 
-        except VectorDatabaseError as e:
-            error_message = (
-                "Semantic search failed due to a vector database error. "
-                "Please check vector indexing and MeiliSearch configuration."
-            )
-            raise ConversationalSearchError(message=error_message) from e
-
     def similar_search(self, request: SimilarityRequestDataClass) -> dict[str, Any]:
-        try:
-            return self.vectorstore.similarity_search(
-                request,
-            )
-
-        except VectorDatabaseError as e:
-            error_message = (
-                "Similarity search failed due to a vector database error. "
-                "Please check vector indexing and MeiliSearch configuration."
-            )
-            raise SimilarSearchError(message=error_message) from e
+        return self.vectorstore.similarity_search(
+            request,
+        )

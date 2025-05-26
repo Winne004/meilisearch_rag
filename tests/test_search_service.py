@@ -81,7 +81,11 @@ def test_index_documents_fails_with_embedder_error():
 
 
 def test_semantic_search_fails_with_error():
-    service = SearchService(FailingEmbedder(), FailingVectorStore(), FailingLLM())
+    service = SearchService(
+        FakeEmbedder(),
+        FailingVectorStore(),
+        FakeMessagesListChatModel(responses=[AIMessage(content="this will fail")]),
+    )
     request = SearchRequestDataClass(query="bad query", limit=1)
 
     with pytest.raises(SemanticSearchError):
@@ -89,7 +93,6 @@ def test_semantic_search_fails_with_error():
 
 
 def test_conversational_search_fails_with_llm_error():
-    # This uses a valid embedder/vectorstore but a failing LLM
     from tests.fakes import FakeEmbedder, FakeVectorStore
 
     service = SearchService(FakeEmbedder(), FakeVectorStore(), FailingLLM())
