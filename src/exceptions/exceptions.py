@@ -22,7 +22,9 @@ class AppError(Exception):
         return f"{self.code} ({self.status_code}): {self.message}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(code={self.code!r}, status_code={self.status_code}, message={self.message!r})"
+        return (
+            f"{self.__class__.__name__}(code={self.code!r}, status_code={self.status_code}, message={self.message!r})"
+        )
 
 
 class ServiceError(AppError):
@@ -70,14 +72,6 @@ class SummarisationError(LLMError):
 
 
 class SemanticSearchError(VectorDatabaseError):
-    """Raised when a semantic search operation fails."""
-
-    status_code = 500
-    code = "semantic_search_failed"
-    message = "Semantic search failed."
-
-
-class ConversationalSearchError(VectorDatabaseError):
     """Raised when a semantic search operation fails."""
 
     status_code = 500
