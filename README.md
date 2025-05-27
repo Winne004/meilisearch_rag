@@ -13,8 +13,6 @@ A simple, extensible conversational search system built with **retrieval-augment
 - ✅ **Conversational Search** - Combines the power of hyrbrid search and summarization for human-friendly responses
 - ✅ **Document indexing** — Index raw documents, chunk and embed them, and search via similarity or hybrid queries
 
-It also allows users to index documents (including the creation of embeddings), and perform similarity and semantic searches. 
-
 ## Quick Start 
 
 ### Prerequisites   
