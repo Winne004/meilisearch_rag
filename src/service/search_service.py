@@ -54,10 +54,7 @@ class SearchService:
             self.vectorstore.add_texts(vectorized_documents)
 
         except LangChainException as e:
-            error_message = (
-                "Failed to index documents. "
-                "Check if the embedder is configured correctly."
-            )
+            error_message = "Failed to index documents. Check if the embedder is configured correctly."
             raise EmbedderError(message=error_message) from e
 
     def semantic_search(self, request: SearchRequestDataClass) -> dict[str, Any]:
