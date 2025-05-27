@@ -33,9 +33,9 @@ AWS_SECRET_ACCESS_KEY=your_secret_key
 REGION=your_region
 meilisearch_url=http://meilisearch:7700
 ```
-1. Launch using docker `docker compose up`
-2. Populate Meilisearch with data `uv run ./scripts/index_documents.py` (requires UV - This will chunk your content, embed it, and index it in Meilisearch using a dataset of BBC articles from 2005.)
-3. Have a play with the API using the `/docs` route (Open your browser at: http://localhost:8000/docs)
+5. Launch using docker `docker compose up`
+6. Populate Meilisearch with data `uv run ./scripts/index_documents.py` (requires UV - This will chunk your content, embed it, and index it in Meilisearch using a dataset of BBC articles from 2005.)
+7. Have a play with the API using the `/docs` route (Open your browser at: http://localhost:8000/docs)
 
 If running locally, replace `.env.docker` with `.env.local`
 

@@ -23,3 +23,6 @@ reportMissingTypeStubs = false
 dev = [
     "pytest>=8.3.5",
 ]
+
+[tool.ruff]
+line-length = 120
