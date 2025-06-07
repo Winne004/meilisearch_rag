@@ -1,5 +1,6 @@
 import os
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import (
@@ -12,7 +13,7 @@ env_file = os.getenv("ENV_FILE", ".env")  # fallback to .env if ENV_FILE is not 
 
 
 class Settings(BaseSettings):
-    provider: str = "Amazon"
+    provider: Literal["Amazon"] = "Amazon"
     model_id: str
     embedder_name: str
     meilisearch_url: str
@@ -20,6 +21,7 @@ class Settings(BaseSettings):
     aws_access_key_id: SecretStr
     aws_secret_access_key: SecretStr
     region: str
+    model_provider: Literal["Bedrock"] = "Bedrock"
     model_config = SettingsConfigDict(env_file=env_file, env_file_encoding="UTF-8")
 
     @classmethod

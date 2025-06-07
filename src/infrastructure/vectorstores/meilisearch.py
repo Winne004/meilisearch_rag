@@ -5,8 +5,8 @@ from typing import Any
 import meilisearch
 from meilisearch.errors import MeilisearchError
 from meilisearch.index import Index
+from pydantic import SecretStr
 
-from src.conf.settings import get_settings
 from src.domain.dataclasses.dataclasses import (
     SearchRequestDataClass,
     SimilarityRequestDataClass,
@@ -20,11 +20,10 @@ from src.exceptions.exceptions import (
 from src.infrastructure.vectorstores.base import VectorStoreABC
 
 
-def get_meilisearch_client() -> meilisearch.Client:
-    settings = get_settings()
+def get_meilisearch_client(meilisearch_url: str, meili_master_key: SecretStr) -> meilisearch.Client:
     return meilisearch.Client(
-        url=settings.meilisearch_url,
-        api_key=settings.meili_master_key.get_secret_value(),
+        url=meilisearch_url,
+        api_key=meili_master_key.get_secret_value(),
     )
 
 
@@ -100,14 +99,14 @@ class MeiliVectorStore(VectorStoreABC):
 
 
 @lru_cache
-def get_vectorstore() -> MeiliVectorStore:
+def get_vectorstore(embedder_name: str, meilisearch_url: str, meili_master_key: SecretStr) -> MeiliVectorStore:
     """Return a wrapper around Meilisearch vector store."""
-    client = get_meilisearch_client()
+    client = get_meilisearch_client(meili_master_key=meili_master_key, meilisearch_url=meilisearch_url)
     index_name = "documents"
-    api_settings = get_settings()
+
     settings = {
         "embedders": {
-            f"{api_settings.embedder_name}": {
+            f"{embedder_name}": {
                 "source": "userProvided",
                 "dimensions": 1024,
             },
@@ -121,4 +120,4 @@ def get_vectorstore() -> MeiliVectorStore:
     index = client.index(index_name)
     index.update_settings(body=settings)
 
-    return MeiliVectorStore(index=index, embedder_name=api_settings.embedder_name)
+    return MeiliVectorStore(index=index, embedder_name=embedder_name)

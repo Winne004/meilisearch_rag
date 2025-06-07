@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.app import app
-from src.dependencies.index_dependencies import get_search_service
+from src.dependencies.index_dependencies import get_dependencies
 from src.domain.schemas.requests import IndexRequest, SearchRequest
 from src.exceptions.exceptions import AppError
 from src.service.search_service import SearchService
@@ -24,7 +24,7 @@ def mock_search_service() -> MagicMock:
 
 @pytest.fixture
 def client(mock_search_service: MagicMock) -> Generator[TestClient, Any]:
-    app.dependency_overrides[get_search_service] = lambda: mock_search_service
+    app.dependency_overrides[get_dependencies] = lambda: mock_search_service
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

@@ -3,7 +3,7 @@ from typing import Annotated, Any
 from fastapi import BackgroundTasks, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from src.dependencies.index_dependencies import get_search_service
+from src.dependencies.index_dependencies import get_dependencies
 from src.domain.dataclasses.dataclasses import (
     Document,
     SearchRequestDataClass,
@@ -39,7 +39,7 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
 )
 def index(
     documents: list[IndexRequest],
-    search_service: Annotated[SearchService, Depends(get_search_service)],
+    search_service: Annotated[SearchService, Depends(get_dependencies)],
     background_tasks: BackgroundTasks,
 ) -> dict[str, str]:
     docs = [Document(**doc.model_dump()) for doc in documents]
@@ -50,7 +50,7 @@ def index(
 @app.post("/search/semantic")
 def semantic_search(
     request: SearchRequest,
-    search_service: Annotated[SearchService, Depends(get_search_service)],
+    search_service: Annotated[SearchService, Depends(get_dependencies)],
 ) -> dict[str, Any]:
     request_data = SearchRequestDataClass(**request.model_dump())
     return search_service.semantic_search(request=request_data)
@@ -59,7 +59,7 @@ def semantic_search(
 @app.post("/search/conversational")
 def generative_search(
     request: SearchRequest,
-    search_service: Annotated[SearchService, Depends(get_search_service)],
+    search_service: Annotated[SearchService, Depends(get_dependencies)],
 ) -> dict[str, Any]:
     request_data = SearchRequestDataClass(**request.model_dump())
     return search_service.conversational_search(request=request_data)
@@ -68,7 +68,7 @@ def generative_search(
 @app.post("/search/similar")
 def similar_search(
     request: SimilarityRequest,
-    search_service: Annotated[SearchService, Depends(get_search_service)],
+    search_service: Annotated[SearchService, Depends(get_dependencies)],
 ) -> dict[str, Any]:
     request_data = SimilarityRequestDataClass(**request.model_dump())
     return search_service.similar_search(request=request_data)
